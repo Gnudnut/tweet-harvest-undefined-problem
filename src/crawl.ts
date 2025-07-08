@@ -260,15 +260,16 @@ export async function crawl({
               if (isPromotedTweet) return null;
 
               const result = IS_SEARCH_MODE
-                ? tweet.content.itemContent.tweet_results.result
-                : tweet.content.items[0].item.itemContent.tweet_results.result;
+  ? tweet?.content?.itemContent?.tweet_results?.result
+  : tweet?.content?.items?.[0]?.item?.itemContent?.tweet_results?.result;
 
-              if (!result.tweet?.core?.user_results && !result.core?.user_results) return null;
+const tweetContent = result?.legacy || result?.tweet?.legacy;
+const userContent = result?.core?.user_results?.result?.legacy || result?.tweet?.core?.user_results?.result?.legacy;
 
-              const tweetContent = result.legacy || result.tweet.legacy;
-              const userContent =
-                result.core?.user_results?.result?.legacy || result.tweet.core.user_results.result.legacy;
-
+if (!userContent?.screen_name) {
+  console.warn("User screen_name missing:", JSON.stringify(userContent));
+  return null;
+}
               return {
                 tweet: tweetContent,
                 user: userContent,
